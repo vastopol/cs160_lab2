@@ -315,7 +315,7 @@ int builtin_cmd(char **argv)
  */
 void do_bgfg(char **argv)
 {
-    struct job_t* curjob;
+    struct job_t* curjob = NULL;
 
     // error
     if (argv[1] == NULL)
@@ -328,8 +328,14 @@ void do_bgfg(char **argv)
 
     if(argv[1][0] == '%') // job id
     {
-        s = s.substr(1,s.size());
-        curjob = getjobjid(jobs,std::stoi(s));
+        try{
+            s = s.substr(1,s.size());
+            curjob = getjobjid(jobs,std::stoi(s));
+        }
+        catch(...)
+        {
+            printf("%s: argument must be a PID or %%jobid\n", argv[0]);
+        }
         if(curjob == NULL)
         {
             printf("%s: No such job\n", argv[1]);
@@ -338,7 +344,13 @@ void do_bgfg(char **argv)
     }
     else   // pid
     {
-        curjob = getjobpid(jobs,std::stoi(s));
+        try{
+            curjob = getjobpid(jobs,std::stoi(s));
+        }
+        catch(...)
+        {
+            printf("%s: argument must be a PID or %%jobid\n", argv[0]);
+        }
         if(curjob == NULL)
         {
             printf("%s: No such process\n", argv[1]);
